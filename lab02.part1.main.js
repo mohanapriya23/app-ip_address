@@ -1,5 +1,3 @@
-
-  
 /*
   Import the ip-cidr npm package.
   See https://www.npmjs.com/package/ip-cidr
@@ -14,14 +12,13 @@ const IPCIDR = require('ip-cidr');
  *                 in CIDR format.
  * @param {callback} callback - A callback function.
  * @return {string} (firstIpAddress) - An IPv4 address.
- * @return {string} (IPv6Address) - An IPv4 Address mapped as an IPv6 address.
  */
 function getFirstIpAddress(cidrStr, callback) {
 
   // Initialize return arguments for callback
   let firstIpAddress = null;
   let callbackError = null;
-  
+
   // Instantiate an object from the imported class and assign the instance to variable cidr.
   const cidr = new IPCIDR(cidrStr);
   // Initialize options for the toArray() method.
@@ -36,22 +33,17 @@ function getFirstIpAddress(cidrStr, callback) {
   if (!cidr.isValid()) {
     // If the passed CIDR is invalid, set an error message.
     callbackError = 'Error: Invalid CIDR passed to getFirstIpAddress.';
-    // Need to reset the value of IPv6Address back to null if CIDR is not valid!
-    IPv6Address = null;
   } else {
     // If the passed CIDR is valid, call the object's toArray() method.
     // Notice the destructering assignment syntax to get the value of the first array's element.
-    // Then retrieve an IPv6 mapped, IPv4 string by calling the getIpv4MappedIpv6Address() method.
     [firstIpAddress] = cidr.toArray(options);
-    IPv6Address = getIpv4MappedIpv6Address(firstIpAddress);
   }
   // Call the passed callback function.
   // Node.js convention is to pass error data as the first argument to a callback.
   // The IAP convention is to pass returned data as the first argument and error
   // data as the second argument to the callback function.
-  return callback({ipv4: firstIpAddress, ipv6: IPv6Address}, callbackError);
+  return callback(firstIpAddress, callbackError);
 }
-
 
 /**
  * Calculates an IPv4-mapped IPv6 address.
@@ -107,6 +99,10 @@ function getIpv4MappedIpv6Address(ipv4) {
   This section is used to test function and log any errors.
   We will make several positive and negative tests.
 */
+/*
+  This section is used to test function and log any errors.
+  We will make several positive and negative tests.
+*/
 function main() {
   // Create some test data for getFirstIpAddress(), both valid and invalid.
   let sampleCidrs = ['172.16.10.0/24', '172.16.10.0 255.255.255.0', '172.16.10.128/25', '192.168.1.216/30'];
@@ -126,11 +122,10 @@ function main() {
       if (error) {
         console.error(`  Error returned from GET request: ${error}`);
       }
-      console.log(`  Response returned from GET request: ${JSON.stringify(data)}`);
+      console.log(`  Response returned from GET request: ${data}`);
     });
   }
   // Iterate over sampleIpv4s and pass the element's value to getIpv4MappedIpv6Address().
-  
   for (let i = 0; i < sampleIpv4sLen; i++) {
     console.log(`\n--- Test Number ${i + 1} getIpv4MappedIpv6Address(${sampleIpv4s[i]}) ---`);
     // Assign the function results to a variable so we can check if a string or null was returned.
